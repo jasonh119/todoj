@@ -1,12 +1,12 @@
 import Sortable from 'sortablejs';
-import { Priority } from '../models/types';
-import type { Board, Card, Workstream } from '../models/types';
+import { Priority, Status, STATUS_LIST, STATUS_LABELS } from '../models/types';
+import type { Board, Card, Status as StatusType, Workstream } from '../models/types';
 import { generateId, saveBoard } from '../storage/storage';
 
 let currentBoard: Board;
 let boardEl: HTMLElement;
-let boardSortable: Sortable | null = null;
-const swimlaneSortables: Map<string, Sortable> = new Map();
+let rowsSortable: Sortable | null = null;
+const cellSortables: Sortable[] = [];
 
 export function initBoard(board: Board): void {
   currentBoard = board;
@@ -24,10 +24,9 @@ function persist(): void {
 }
 
 function render(): void {
-  // Destroy existing sortables
-  boardSortable?.destroy();
-  swimlaneSortables.forEach((s) => s.destroy());
-  swimlaneSortables.clear();
+  rowsSortable?.destroy();
+  cellSortables.forEach((s) => s.destroy());
+  cellSortables.length = 0;
 
   boardEl.innerHTML = '';
 
@@ -36,15 +35,35 @@ function render(): void {
     return;
   }
 
+  // Status column headers
+  const headerRow = document.createElement('div');
+  headerRow.className = 'board-header-row';
+  const labelSpacer = document.createElement('div');
+  labelSpacer.className = 'ws-label-spacer';
+  headerRow.appendChild(labelSpacer);
+  for (const status of STATUS_LIST) {
+    const colHeader = document.createElement('div');
+    colHeader.className = 'status-col-header';
+    colHeader.textContent = STATUS_LABELS[status];
+    headerRow.appendChild(colHeader);
+  }
+  boardEl.appendChild(headerRow);
+
+  // Workstream rows container (sortable for row reordering)
+  const rowsContainer = document.createElement('div');
+  rowsContainer.className = 'ws-rows-container';
+
   currentBoard.workstreams.forEach((ws) => {
-    boardEl.appendChild(createWorkstreamColumn(ws));
+    rowsContainer.appendChild(createWorkstreamRow(ws));
   });
 
-  // Workstream column reordering
-  boardSortable = Sortable.create(boardEl, {
+  boardEl.appendChild(rowsContainer);
+
+  // Workstream row reordering
+  rowsSortable = Sortable.create(rowsContainer, {
     animation: 150,
-    handle: '.swimlane-drag-handle',
-    ghostClass: 'swimlane-ghost',
+    handle: '.ws-drag-handle',
+    ghostClass: 'ws-row-ghost',
     onEnd: (evt) => {
       const { oldIndex, newIndex } = evt;
       if (oldIndex == null || newIndex == null || oldIndex === newIndex) return;
@@ -65,76 +84,108 @@ function renderEmptyState(): void {
   boardEl.appendChild(empty);
 }
 
-function createWorkstreamColumn(ws: Workstream): HTMLElement {
-  const col = document.createElement('div');
-  col.className = 'swimlane';
-  col.dataset.wsId = ws.id;
+function createWorkstreamRow(ws: Workstream): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'ws-row';
+  row.dataset.wsId = ws.id;
 
-  // Header
-  const header = document.createElement('div');
-  header.className = 'swimlane-header';
+  // Row label
+  const label = document.createElement('div');
+  label.className = 'ws-label';
 
   const dragHandle = document.createElement('span');
-  dragHandle.className = 'swimlane-drag-handle';
+  dragHandle.className = 'ws-drag-handle';
   dragHandle.textContent = '⠿';
   dragHandle.title = 'Drag to reorder';
 
   const nameEl = document.createElement('span');
-  nameEl.className = 'swimlane-name';
+  nameEl.className = 'ws-name';
   nameEl.textContent = ws.name;
   nameEl.addEventListener('dblclick', () => startRename(ws, nameEl));
 
+  const actions = document.createElement('div');
+  actions.className = 'ws-actions';
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'ws-add-card-btn';
+  addBtn.textContent = '+';
+  addBtn.title = 'Add card';
+  addBtn.addEventListener('click', () => openCardCreateModal(ws));
+
   const deleteBtn = document.createElement('button');
-  deleteBtn.className = 'swimlane-delete-btn';
+  deleteBtn.className = 'ws-delete-btn';
   deleteBtn.textContent = '×';
   deleteBtn.title = 'Delete workstream';
   deleteBtn.addEventListener('click', () => deleteWorkstream(ws));
 
-  header.appendChild(dragHandle);
-  header.appendChild(nameEl);
-  header.appendChild(deleteBtn);
-  col.appendChild(header);
+  actions.appendChild(addBtn);
+  actions.appendChild(deleteBtn);
 
-  // Card list
-  const cardList = document.createElement('div');
-  cardList.className = 'card-list';
-  cardList.dataset.wsId = ws.id;
-  ws.cards.forEach((card) => {
-    cardList.appendChild(createCardElement(card, ws.id));
-  });
-  col.appendChild(cardList);
+  label.appendChild(dragHandle);
+  label.appendChild(nameEl);
+  label.appendChild(actions);
+  row.appendChild(label);
 
-  // Initialize SortableJS for card drag-and-drop
-  const sortable = Sortable.create(cardList, {
-    group: 'cards',
-    animation: 150,
-    ghostClass: 'card-ghost',
-    chosenClass: 'card-chosen',
-    dragClass: 'card-drag',
-    onEnd: (evt) => {
-      const fromWsId = evt.from.dataset.wsId!;
-      const toWsId = evt.to.dataset.wsId!;
-      const oldIndex = evt.oldIndex!;
-      const newIndex = evt.newIndex!;
+  // One cell per status column
+  for (const status of STATUS_LIST) {
+    const cell = document.createElement('div');
+    cell.className = 'board-cell';
+    cell.dataset.wsId = ws.id;
+    cell.dataset.status = status;
 
-      const fromWs = currentBoard.workstreams.find((w) => w.id === fromWsId)!;
-      const toWs = currentBoard.workstreams.find((w) => w.id === toWsId)!;
+    const cardsForCell = ws.cards.filter((c) => c.status === status);
+    cardsForCell.forEach((card) => {
+      cell.appendChild(createCardElement(card, ws.id));
+    });
 
-      const [movedCard] = fromWs.cards.splice(oldIndex, 1);
-      toWs.cards.splice(newIndex, 0, movedCard);
-      persist();
-    },
-  });
-  swimlaneSortables.set(ws.id, sortable);
+    row.appendChild(cell);
 
-  // Add card button
-  const addCardBtn = document.createElement('button');
-  addCardBtn.className = 'add-card-btn';
-  addCardBtn.textContent = '+ Add Card';
-  addCardBtn.addEventListener('click', () => promptNewCard(ws));
-  col.appendChild(addCardBtn);
+    // SortableJS per cell, grouped by workstream row
+    const sortable = Sortable.create(cell, {
+      group: `ws-${ws.id}`,
+      animation: 150,
+      ghostClass: 'card-ghost',
+      chosenClass: 'card-chosen',
+      dragClass: 'card-drag',
+      onEnd: (evt) => {
+        const fromStatus = evt.from.dataset.status as StatusType;
+        const toStatus = evt.to.dataset.status as StatusType;
+        const oldIndex = evt.oldIndex!;
+        const newIndex = evt.newIndex!;
 
-  return col;
+        // Get cards by status to find the moved card
+        const fromCards = ws.cards.filter((c) => c.status === fromStatus);
+        const movedCard = fromCards[oldIndex];
+
+        if (fromStatus !== toStatus) {
+          movedCard.status = toStatus;
+        }
+
+        // Rebuild card order: remove moved card, then reinsert at correct position
+        ws.cards = ws.cards.filter((c) => c.id !== movedCard.id);
+
+        // Find insertion point among cards with the target status
+        const targetCards = ws.cards.filter((c) => c.status === toStatus);
+        if (newIndex >= targetCards.length) {
+          // Insert after the last card with this status
+          const lastIdx =
+            targetCards.length > 0
+              ? ws.cards.indexOf(targetCards[targetCards.length - 1]) + 1
+              : ws.cards.length;
+          ws.cards.splice(lastIdx, 0, movedCard);
+        } else {
+          const insertBefore = targetCards[newIndex];
+          const insertIdx = ws.cards.indexOf(insertBefore);
+          ws.cards.splice(insertIdx, 0, movedCard);
+        }
+
+        persist();
+      },
+    });
+    cellSortables.push(sortable);
+  }
+
+  return row;
 }
 
 function createCardElement(card: Card, wsId: string): HTMLElement {
@@ -232,10 +283,6 @@ function deleteWorkstream(ws: Workstream): void {
 
 // ── Card actions ──
 
-function promptNewCard(ws: Workstream): void {
-  openCardCreateModal(ws);
-}
-
 function openCardCreateModal(ws: Workstream): void {
   const overlay = document.getElementById('modal-overlay')!;
   overlay.classList.remove('hidden');
@@ -289,7 +336,14 @@ function openCardCreateModal(ws: Workstream): void {
     const priority = prioVal ? (prioVal as Priority) : null;
     const tags = parseTags(tagsVal);
 
-    const card: Card = { id: generateId(), title, description: desc, priority, tags };
+    const card: Card = {
+      id: generateId(),
+      title,
+      description: desc,
+      status: Status.Backlog,
+      priority,
+      tags,
+    };
     ws.cards.push(card);
     persist();
     render();
@@ -304,6 +358,10 @@ function openCardEditModal(card: Card, wsId: string): void {
   overlay.classList.remove('hidden');
   overlay.innerHTML = '';
 
+  const statusOptions = STATUS_LIST.map(
+    (s) => `<option value="${s}"${card.status === s ? ' selected' : ''}>${STATUS_LABELS[s]}</option>`,
+  ).join('');
+
   const modal = document.createElement('div');
   modal.className = 'modal';
   modal.innerHTML = `
@@ -312,6 +370,8 @@ function openCardEditModal(card: Card, wsId: string): void {
     <input type="text" id="modal-title" value="${escapeHtml(card.title)}" />
     <label>Description</label>
     <textarea id="modal-desc">${escapeHtml(card.description)}</textarea>
+    <label>Status</label>
+    <select id="modal-status">${statusOptions}</select>
     <label>Priority</label>
     <select id="modal-priority">
       <option value="">None</option>
@@ -399,6 +459,7 @@ function openCardEditModal(card: Card, wsId: string): void {
     }
     card.title = title;
     card.description = (modal.querySelector('#modal-desc') as HTMLTextAreaElement).value;
+    card.status = (modal.querySelector('#modal-status') as HTMLSelectElement).value as StatusType;
     const prioVal = (modal.querySelector('#modal-priority') as HTMLSelectElement).value;
     card.priority = prioVal ? (prioVal as Priority) : null;
     card.tags = editTags;

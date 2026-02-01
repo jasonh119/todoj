@@ -22,7 +22,7 @@
   --spacing-lg: 16px;
   --spacing-xl: 24px;
 
-  --swimlane-width: 300px;
+  --ws-label-width: 180px;
 }
 
 * {
@@ -78,12 +78,12 @@ body {
 /* ── Board ── */
 
 #board {
-  display: flex;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-  overflow-x: auto;
   flex: 1;
-  align-items: flex-start;
+  overflow: auto;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 /* ── Empty state ── */
@@ -100,29 +100,71 @@ body {
   text-align: center;
 }
 
-/* ── Swimlane ── */
+/* ── Board header row (status columns) ── */
 
-.swimlane {
-  flex: 0 0 var(--swimlane-width);
+.board-header-row {
+  display: grid;
+  grid-template-columns: var(--ws-label-width) repeat(3, 1fr);
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+}
+
+.ws-label-spacer {
+  /* Empty spacer to align with workstream labels */
+}
+
+.status-col-header {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: center;
   background: var(--surface);
   border-radius: var(--radius);
   border: 1px solid var(--border);
+}
+
+/* ── Workstream rows container ── */
+
+.ws-rows-container {
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 120px);
-}
-
-.swimlane-header {
-  display: flex;
-  align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-md);
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-  font-size: 0.9rem;
 }
 
-.swimlane-drag-handle {
+/* ── Workstream row ── */
+
+.ws-row {
+  display: grid;
+  grid-template-columns: var(--ws-label-width) repeat(3, 1fr);
+  gap: var(--spacing-sm);
+  min-height: 80px;
+}
+
+.ws-row-ghost {
+  opacity: 0.4;
+}
+
+/* ── Workstream label ── */
+
+.ws-label {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  align-items: flex-start;
+}
+
+.ws-drag-handle {
   cursor: grab;
   color: var(--text-secondary);
   user-select: none;
@@ -130,20 +172,22 @@ body {
   line-height: 1;
 }
 
-.swimlane-drag-handle:active {
+.ws-drag-handle:active {
   cursor: grabbing;
 }
 
-.swimlane-name {
-  flex: 1;
+.ws-name {
+  font-weight: 600;
+  font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
   cursor: default;
 }
 
 .rename-input {
-  flex: 1;
+  width: 100%;
   font-size: 0.9rem;
   font-weight: 600;
   border: 1px solid var(--accent);
@@ -152,30 +196,46 @@ body {
   outline: none;
 }
 
-.swimlane-delete-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.2rem;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0 var(--spacing-xs);
+.ws-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-top: auto;
 }
 
-.swimlane-delete-btn:hover {
+.ws-add-card-btn,
+.ws-delete-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 2px 6px;
+  color: var(--text-secondary);
+}
+
+.ws-add-card-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ws-delete-btn:hover {
+  border-color: var(--danger);
   color: var(--danger);
 }
 
-/* ── Card list ── */
+/* ── Board cell (workstream × status) ── */
 
-.card-list {
-  flex: 1;
-  overflow-y: auto;
+.board-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: var(--spacing-sm);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  min-height: 40px;
+  min-height: 60px;
+  overflow-y: auto;
 }
 
 /* ── Card ── */
@@ -198,12 +258,12 @@ body {
 }
 
 .card-title {
-  font-size: 0.875rem;
+  font-size: 0.825rem;
   font-weight: 500;
 }
 
 .priority-badge {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -238,30 +298,12 @@ body {
 }
 
 .tag-chip {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   padding: 2px var(--spacing-sm);
   background: var(--border);
   border-radius: 999px;
   color: var(--text-secondary);
   white-space: nowrap;
-}
-
-/* ── Add card button ── */
-
-.add-card-btn {
-  padding: var(--spacing-sm);
-  background: none;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 0.8rem;
-  margin: var(--spacing-sm);
-}
-
-.add-card-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 /* ── Drag feedback ── */
@@ -278,10 +320,6 @@ body {
 
 .card-drag {
   opacity: 0.9;
-}
-
-.swimlane-ghost {
-  opacity: 0.4;
 }
 
 /* ── Modal ── */
