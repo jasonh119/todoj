@@ -1,3 +1,5 @@
+## MODIFIED Requirements
+
 ### Requirement: Board layout displays swimlanes as columns
 The system SHALL render the kanban board as a grid with workstream rows along the vertical axis and three fixed status columns (Backlog, In Progress, Done) along the horizontal axis. Each workstream SHALL be displayed as a horizontal row with its name as a label on the left. Each cell in the grid (workstream × status) SHALL display the cards belonging to that workstream with that status.
 
@@ -37,3 +39,9 @@ The system SHALL provide visual feedback while a card is being dragged, includin
 #### Scenario: Drag feedback is visible
 - **WHEN** a user begins dragging a card
 - **THEN** the system SHALL show a visual representation of the card following the cursor and highlight valid drop targets within the same workstream row
+
+## REMOVED Requirements
+
+### Requirement: Cards are rendered within their swimlane
+**Reason**: Replaced by status-columns capability. Cards are now rendered in grid cells (workstream × status) rather than within a single swimlane column.
+**Migration**: Card rendering is handled by the new grid layout and status-columns spec.

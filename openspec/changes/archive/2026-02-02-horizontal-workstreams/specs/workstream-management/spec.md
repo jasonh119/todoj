@@ -1,3 +1,5 @@
+## MODIFIED Requirements
+
 ### Requirement: Create a new workstream
 The system SHALL allow users to create a new workstream with a user-provided name. The new workstream SHALL appear as the last row on the board with empty cells for each status column.
 
@@ -8,17 +10,6 @@ The system SHALL allow users to create a new workstream with a user-provided nam
 #### Scenario: Reject workstream with empty name
 - **WHEN** a user attempts to create a workstream with an empty or whitespace-only name
 - **THEN** the system SHALL not create the workstream and SHALL indicate that a name is required
-
-### Requirement: Rename a workstream
-The system SHALL allow users to rename an existing workstream. The updated name SHALL be persisted.
-
-#### Scenario: Rename workstream
-- **WHEN** a user renames a workstream to a new non-empty value
-- **THEN** the workstream row label SHALL display the updated name
-
-#### Scenario: Reject rename to empty name
-- **WHEN** a user attempts to rename a workstream to an empty or whitespace-only name
-- **THEN** the system SHALL reject the rename and keep the existing name
 
 ### Requirement: Delete a workstream
 The system SHALL allow users to delete a workstream. Deletion SHALL remove the workstream row and all of its cards across all status columns. The system SHALL require confirmation before deleting a workstream that contains cards.
