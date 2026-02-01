@@ -1,0 +1,441 @@
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #6b7280;
+  --border: #e2e5ea;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+
+  --priority-low: #22c55e;
+  --priority-medium: #eab308;
+  --priority-high: #f97316;
+  --priority-urgent: #ef4444;
+
+  --radius: 8px;
+  --radius-sm: 4px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  --swimlane-width: 300px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Header ── */
+
+#app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+#app-header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+#add-workstream-btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+#add-workstream-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* ── Board ── */
+
+#board {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  overflow-x: auto;
+  flex: 1;
+  align-items: flex-start;
+}
+
+/* ── Empty state ── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ── Swimlane ── */
+
+.swimlane {
+  flex: 0 0 var(--swimlane-width);
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 120px);
+}
+
+.swimlane-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-md);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.swimlane-drag-handle {
+  cursor: grab;
+  color: var(--text-secondary);
+  user-select: none;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.swimlane-drag-handle:active {
+  cursor: grabbing;
+}
+
+.swimlane-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.rename-input {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 2px var(--spacing-xs);
+  outline: none;
+}
+
+.swimlane-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 var(--spacing-xs);
+}
+
+.swimlane-delete-btn:hover {
+  color: var(--danger);
+}
+
+/* ── Card list ── */
+
+.card-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-height: 40px;
+}
+
+/* ── Card ── */
+
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.priority-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  color: white;
+  align-self: flex-start;
+}
+
+.priority-low .priority-badge {
+  background: var(--priority-low);
+}
+
+.priority-medium .priority-badge {
+  background: var(--priority-medium);
+  color: var(--text);
+}
+
+.priority-high .priority-badge {
+  background: var(--priority-high);
+}
+
+.priority-urgent .priority-badge {
+  background: var(--priority-urgent);
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.tag-chip {
+  font-size: 0.7rem;
+  padding: 2px var(--spacing-sm);
+  background: var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* ── Add card button ── */
+
+.add-card-btn {
+  padding: var(--spacing-sm);
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin: var(--spacing-sm);
+}
+
+.add-card-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Drag feedback ── */
+
+.card-ghost {
+  opacity: 0.4;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.card-chosen {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-drag {
+  opacity: 0.9;
+}
+
+.swimlane-ghost {
+  opacity: 0.4;
+}
+
+/* ── Modal ── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: var(--spacing-xl);
+  width: 420px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.modal h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.modal label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.modal .required {
+  color: var(--danger);
+}
+
+.modal .hint {
+  font-weight: 400;
+  font-style: italic;
+}
+
+.modal input[type="text"],
+.modal textarea,
+.modal select {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.modal input[type="text"]:focus,
+.modal textarea:focus,
+.modal select:focus {
+  border-color: var(--accent);
+}
+
+.modal textarea {
+  min-height: 60px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.modal-actions button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.modal-actions button#modal-save {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.modal-actions button#modal-save:hover {
+  background: var(--accent-hover);
+}
+
+.modal-actions button.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+  margin-right: auto;
+}
+
+.modal-actions button.btn-danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* ── Tags editor in modal ── */
+
+.tags-editor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  align-items: center;
+  min-height: 36px;
+}
+
+.tags-editor:focus-within {
+  border-color: var(--accent);
+}
+
+.tag-chip.removable {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.tag-remove:hover {
+  color: var(--danger);
+}
+
+.tag-input {
+  border: none !important;
+  outline: none;
+  padding: 2px !important;
+  font-size: 0.8rem !important;
+  flex: 1;
+  min-width: 80px;
+}
