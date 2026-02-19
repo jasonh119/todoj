@@ -40,9 +40,9 @@ The app persists board data in localStorage under a single key. Theme preference
 
 ### 3. Theme toggle: button in the app header
 
-**Choice**: Add a simple text/icon button to the right side of the app header, next to the existing "+ New Workstream" button. The button displays a sun/moon indicator and toggles theme on click.
+**Choice**: Add a simple text/icon button to the `<todo-app>` component's `app-header` template, positioned to the left of the existing "+ New Workstream" button. The button displays a sun/moon indicator and toggles theme on click. Theme state is tracked via a reactive `_darkMode` property in `<todo-app>`.
 
-**Rationale**: The header already has the "add workstream" button, so placing the theme toggle there keeps controls co-located. A simple button avoids adding UI complexity.
+**Rationale**: The header is rendered inside `<todo-app>`'s shadow DOM `render()` method. Placing the theme toggle there keeps controls co-located. A simple button avoids adding UI complexity. Using a reactive property ensures the icon updates on toggle.
 
 ### 4. Theme persistence: separate localStorage key
 
@@ -59,6 +59,6 @@ The app persists board data in localStorage under a single key. Theme preference
 ## Risks / Trade-offs
 
 - **Flash of light theme on slow loads** -- Mitigated by reading theme preference synchronously in main.ts before any rendering. Since localStorage reads are synchronous, the attribute is set before CSS paints.
-- **Card hover shadows need adjustment** -- The current `rgba(0,0,0,0.08)` shadow is invisible on dark backgrounds. The dark theme overrides shadow values to use a lighter glow or increased opacity.
+- **Card hover shadows need adjustment** -- The current `rgba(0,0,0,0.08)` shadow in `<card-element>`'s shadow DOM styles is invisible on dark backgrounds. Since shadow DOM encapsulates these styles, the shadow value must be converted to a CSS custom property (`--card-hover-shadow`) defined in `:root` and overridden in `[data-theme="dark"]`, so it inherits through the shadow boundary.
 - **Modal overlay contrast** -- The `rgba(0,0,0,0.4)` overlay needs to be darker in dark mode to maintain the dimming effect against an already-dark background. Override to `rgba(0,0,0,0.6)`.
 - **No system preference detection** -- Users who prefer dark mode at the OS level still get light mode by default on first visit. Acceptable for v1; `prefers-color-scheme` can be added as an enhancement.
