@@ -1,20 +1,12 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+context: |
+  Tech stack: Vanilla TypeScript, Vite, SortableJS, CSS custom properties, localStorage
+  No framework — all DOM is imperative (document.createElement, manual event listeners)
+  Single-page app: index.html has #app, #board, #modal-overlay
+  Board state is a single Board object; mutations call persist() then render()
+  Types use `as const` object pattern (not enums) for Status and Priority
+  Strict TypeScript (strict: true, noUnusedLocals, noUnusedParameters)
+  CSS theming via :root custom properties (--bg, --surface, --text, --accent, etc.)
+  No tests or linter currently configured
+  Source files: src/main.ts, src/components/board.ts, src/models/types.ts, src/storage/storage.ts, src/styles/main.css
