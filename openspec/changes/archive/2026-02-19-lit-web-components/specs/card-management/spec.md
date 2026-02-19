@@ -1,3 +1,5 @@
+## MODIFIED Requirements
+
 ### Requirement: Create a new card
 The system SHALL allow users to create a new card within a specific workstream. When the user clicks the add-card button on a `<workstream-row>`, the row SHALL dispatch an `open-card-modal` custom event with `{ wsId, mode: 'create' }`. The `<todo-app>` component SHALL set the `<card-modal>` component's properties to show a creation form. The `<card-modal>` SHALL dispatch a `card-created` custom event with the new card data on save. A new card MUST have a title. Priority, tags, and status are settable at creation time. If status is not specified, it SHALL default to `backlog`.
 
@@ -14,7 +16,7 @@ The system SHALL allow users to create a new card within a specific workstream. 
 - **THEN** the `<card-modal>` SHALL not dispatch a `card-created` event and SHALL indicate that a title is required
 
 ### Requirement: Card display is a self-contained component
-Each card SHALL be rendered as a `<card-element>` Lit component. The component SHALL accept `card` data and `wsId` as properties and render the card title, priority badge, and tags using a declarative Lit template. Clicking the card SHALL dispatch an `open-card-modal` custom event with `{ wsId, cardId, mode: 'edit' }`.
+Each card SHALL be rendered as a `<card-element>` Lit component. The component SHALL accept `card` data and `wsId` as `@property()` inputs and render the card title, priority badge, and tags using a declarative Lit template. Clicking the card SHALL dispatch an `open-card-modal` custom event with `{ wsId, cardId, mode: 'edit' }`.
 
 #### Scenario: Card element renders card data
 - **WHEN** a `<card-element>` receives card data via properties
@@ -24,22 +26,8 @@ Each card SHALL be rendered as a `<card-element>` Lit component. The component S
 - **WHEN** a user clicks on a `<card-element>`
 - **THEN** the component SHALL dispatch an `open-card-modal` event with the card ID and workstream ID
 
-### Requirement: Cards have a status field
-Every card SHALL have a `status` field with one of three values: `backlog`, `in-progress`, or `done`. The status field is required and SHALL default to `backlog` when a new card is created.
-
-#### Scenario: New card defaults to backlog
-- **WHEN** a user creates a new card without specifying a status
-- **THEN** the card SHALL be created with status `backlog` and appear in the Backlog column
-
-### Requirement: Card status can be edited in the edit modal
-The card edit modal SHALL include a status selector allowing the user to change the card's status to any of the three values (Backlog, In Progress, Done).
-
-#### Scenario: Change card status via edit modal
-- **WHEN** a user opens a card's edit modal and changes the status from Backlog to Done
-- **THEN** the card SHALL move to the Done column of its workstream after saving
-
 ### Requirement: Edit an existing card
-The system SHALL allow users to edit any field on an existing card via the `<card-modal>` component: title, description, status, priority, and tags. The `<card-modal>` SHALL manage form state as reactive properties. On save, it SHALL dispatch a `card-updated` custom event with the modified card data. Changes SHALL be persisted by `<todo-app>`.
+The system SHALL allow users to edit any field on an existing card via the `<card-modal>` component: title, description, status, priority, and tags. The `<card-modal>` SHALL manage form state as `@state()` reactive properties. On save, it SHALL dispatch a `card-updated` custom event with the modified card data. Changes SHALL be persisted by `<todo-app>`.
 
 #### Scenario: Edit card title
 - **WHEN** a user edits a card's title to a new non-empty value and saves
@@ -73,7 +61,7 @@ The system SHALL allow users to delete a card via the `<card-modal>` component. 
 - **THEN** the card SHALL remain unchanged
 
 ### Requirement: Modal is a reusable Lit component
-The `<card-modal>` SHALL be a single Lit component that handles both create and edit modes. It SHALL accept a `mode` property (`'create'` or `'edit'`), optional `card` data (for edit mode), and a `wsId` property. The modal SHALL manage its own form state via reactive properties. It SHALL render the tags editor with add/remove functionality as part of its template. Visibility SHALL be controlled by an `open` boolean property.
+The `<card-modal>` SHALL be a single Lit component that handles both create and edit modes. It SHALL accept a `mode` property (`'create'` or `'edit'`), optional `card` data (for edit mode), and a `wsId` property. The modal SHALL manage its own form state via `@state()` properties. It SHALL render the tags editor with add/remove functionality as part of its template. Visibility SHALL be controlled by an `open` boolean property.
 
 #### Scenario: Modal renders in create mode
 - **WHEN** the `<card-modal>` has `mode="create"` and `open=true`
@@ -86,17 +74,3 @@ The `<card-modal>` SHALL be a single Lit component that handles both create and 
 #### Scenario: Modal closes on overlay click
 - **WHEN** the user clicks the overlay area outside the modal
 - **THEN** the `<card-modal>` SHALL dispatch a `modal-closed` event and `<todo-app>` SHALL set `open=false`
-
-### Requirement: Priority values
-The system SHALL support four priority levels: low, medium, high, and urgent. Each priority level SHALL have a distinct visual style (color or icon). Priority is optional — cards with no priority set SHALL display without a priority indicator.
-
-#### Scenario: Each priority level is visually distinct
-- **WHEN** cards with different priority levels are displayed
-- **THEN** each priority level SHALL have a visually distinguishable indicator
-
-### Requirement: Tags are free-form strings
-Tags SHALL be free-form user-defined strings. A card MAY have zero or more tags. Duplicate tags on the same card SHALL not be allowed.
-
-#### Scenario: Add duplicate tag
-- **WHEN** a user attempts to add a tag that already exists on the card
-- **THEN** the system SHALL not add the duplicate tag

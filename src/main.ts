@@ -1,6 +1,9 @@
-import { initBoard } from './components/board';
+import './components/todo-app';
 import { loadBoard } from './storage/storage';
 import './styles/main.css';
 
 const board = loadBoard();
-initBoard(board);
+const app = document.querySelector('todo-app');
+if (app) {
+  (app as import('./components/todo-app').TodoApp).board = board;
+}

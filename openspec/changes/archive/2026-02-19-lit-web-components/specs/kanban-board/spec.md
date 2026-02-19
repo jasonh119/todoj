@@ -1,3 +1,5 @@
+## MODIFIED Requirements
+
 ### Requirement: Board layout displays swimlanes as columns
 The system SHALL render the kanban board as a grid with workstream rows along the vertical axis and three fixed status columns (Backlog, In Progress, Done) along the horizontal axis. The board SHALL be rendered by the `<todo-app>` component, which composes a `<board-header>` component for the column headers and one `<workstream-row>` component per workstream. Each `<workstream-row>` SHALL contain one `<status-cell>` component per status column, and each `<status-cell>` SHALL render `<card-element>` components for the cards in that cell.
 

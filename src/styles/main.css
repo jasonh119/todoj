@@ -38,107 +38,7 @@ body {
   min-height: 100vh;
 }
 
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-/* ── Header ── */
-
-#app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-lg) var(--spacing-xl);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-
-#app-header h1 {
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-#add-workstream-btn {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-#add-workstream-btn:hover {
-  background: var(--accent-hover);
-}
-
-/* ── Board ── */
-
-#board {
-  flex: 1;
-  overflow: auto;
-  padding: var(--spacing-xl);
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-/* ── Empty state ── */
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  width: 100%;
-  padding: var(--spacing-xl);
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-/* ── Board header row (status columns) ── */
-
-.board-header-row {
-  display: grid;
-  grid-template-columns: var(--ws-label-width) repeat(3, 1fr);
-  gap: var(--spacing-sm);
-  padding-bottom: var(--spacing-sm);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--bg);
-}
-
-.ws-label-spacer {
-  /* Empty spacer to align with workstream labels */
-}
-
-.status-col-header {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  padding: var(--spacing-sm) var(--spacing-md);
-  text-align: center;
-  background: var(--surface);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-}
-
-/* ── Workstream rows container ── */
-
-.ws-rows-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-/* ── Workstream row ── */
+/* ── Workstream row (light DOM — used by workstream-row + SortableJS) ── */
 
 .ws-row {
   display: grid;
@@ -150,8 +50,6 @@ body {
 .ws-row-ghost {
   opacity: 0.4;
 }
-
-/* ── Workstream label ── */
 
 .ws-label {
   background: var(--surface);
@@ -224,7 +122,7 @@ body {
   color: var(--danger);
 }
 
-/* ── Board cell (workstream × status) ── */
+/* ── Board cell (light DOM — used by status-cell + SortableJS) ── */
 
 .board-cell {
   background: var(--surface);
@@ -236,74 +134,6 @@ body {
   gap: var(--spacing-sm);
   min-height: 60px;
   overflow-y: auto;
-}
-
-/* ── Card ── */
-
-.card {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--spacing-md);
-  cursor: pointer;
-  transition: box-shadow 0.15s, border-color 0.15s;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.card:hover {
-  border-color: var(--accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.card-title {
-  font-size: 0.825rem;
-  font-weight: 500;
-}
-
-.priority-badge {
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 2px var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  color: white;
-  align-self: flex-start;
-}
-
-.priority-low .priority-badge {
-  background: var(--priority-low);
-}
-
-.priority-medium .priority-badge {
-  background: var(--priority-medium);
-  color: var(--text);
-}
-
-.priority-high .priority-badge {
-  background: var(--priority-high);
-}
-
-.priority-urgent .priority-badge {
-  background: var(--priority-urgent);
-}
-
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-xs);
-}
-
-.tag-chip {
-  font-size: 0.65rem;
-  padding: 2px var(--spacing-sm);
-  background: var(--border);
-  border-radius: 999px;
-  color: var(--text-secondary);
-  white-space: nowrap;
 }
 
 /* ── Drag feedback ── */
@@ -322,7 +152,7 @@ body {
   opacity: 0.9;
 }
 
-/* ── Modal ── */
+/* ── Modal (light DOM — used by card-modal) ── */
 
 .modal-overlay {
   position: fixed;
@@ -332,10 +162,6 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 100;
-}
-
-.modal-overlay.hidden {
-  display: none;
 }
 
 .modal {
@@ -411,13 +237,13 @@ body {
   font-weight: 500;
 }
 
-.modal-actions button#modal-save {
+.modal-actions button.btn-primary {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
 }
 
-.modal-actions button#modal-save:hover {
+.modal-actions button.btn-primary:hover {
   background: var(--accent-hover);
 }
 
@@ -453,6 +279,12 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 2px;
+  font-size: 0.65rem;
+  padding: 2px var(--spacing-sm);
+  background: var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .tag-remove {
